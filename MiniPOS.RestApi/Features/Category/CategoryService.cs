@@ -4,7 +4,7 @@ using MiniPOS.RestApi.Shared.Model;
 
 namespace MiniPOS.RestApi.Features.Category;
 
-public class CategoryService
+public class CategoryService : ICategoryService
 {
 	private AppDbContext _db;
 
@@ -48,7 +48,7 @@ public class CategoryService
 	{
 		List<CategoryModel> list = new();
 
-		if(paginationModel.Page != 0 && paginationModel.Limit != 0)
+		if (paginationModel.Page != 0 && paginationModel.Limit != 0)
 		{
 			list = await _db.Categories
 			.AsNoTracking()
@@ -88,12 +88,12 @@ public class CategoryService
 			return responseModel;
 		}
 
-		if(!string.IsNullOrEmpty(requestModel.Name))
+		if (!string.IsNullOrEmpty(requestModel.Name))
 		{
 			category.Name = requestModel.Name;
 		}
-		
-		if(!string.IsNullOrEmpty(requestModel.Description))
+
+		if (!string.IsNullOrEmpty(requestModel.Description))
 		{
 			category.Description = requestModel.Description;
 		}
@@ -128,11 +128,11 @@ public class CategoryService
 			.Where(x => x.CategoryId == category.Id)
 			.CountAsync();
 
-		if(productCount < 0)
+		if (productCount < 0)
 		{
 			responseModel.IsSuccessful = false;
 			responseModel.Message = "Category Cannot be Deleted. Related products exist.";
-			return responseModel ;
+			return responseModel;
 		}
 
 		_db.Entry(category).State = EntityState.Deleted;

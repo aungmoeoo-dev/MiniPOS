@@ -8,7 +8,7 @@ namespace MiniPOS.RestApi.Features.Product
 	[ApiController]
 	public class ProductController : ControllerBase
 	{
-		private ProductService _productService;
+		private IProductService _productService;
 
 		public ProductController()
 		{

@@ -9,7 +9,7 @@ namespace MiniPOS.RestApi.Features.Category;
 [ApiController]
 public class CategoryController : ControllerBase
 {
-	private CategoryService _categoryService;
+	private ICategoryService _categoryService;
 	public CategoryController()
 	{
 		_categoryService = new CategoryService();

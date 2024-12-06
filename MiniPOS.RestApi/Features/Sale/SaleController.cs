@@ -9,7 +9,7 @@ namespace MiniPOS.RestApi.Features.Sale;
 [ApiController]
 public class SaleController : ControllerBase
 {
-	private SaleService _saleService;
+	private ISaleService _saleService;
 
 	public SaleController()
 	{

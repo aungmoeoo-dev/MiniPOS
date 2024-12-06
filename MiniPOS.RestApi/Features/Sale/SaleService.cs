@@ -8,7 +8,7 @@ using System.Transactions;
 
 namespace MiniPOS.RestApi.Features.Sale;
 
-public class SaleService
+public class SaleService : ISaleService
 {
 	private AppDbContext _db;
 
@@ -28,7 +28,7 @@ public class SaleService
 			var product = await _db.Products
 				.FirstOrDefaultAsync(product => product.Id == saleDetail.ProductId);
 
-			if (product is null) 
+			if (product is null)
 			{
 				responseModel.IsSuccessful = false;
 				responseModel.Data = null;
@@ -92,7 +92,7 @@ public class SaleService
 	{
 		List<SaleModel> list = new();
 
-		if (paginationModel.Page  != 0 && paginationModel.Limit != 0)
+		if (paginationModel.Page != 0 && paginationModel.Limit != 0)
 		{
 			list = await _db.Sales
 				.Skip((paginationModel.Page - 1) * paginationModel.Limit)

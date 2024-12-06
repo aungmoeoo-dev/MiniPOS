@@ -3,7 +3,7 @@ using MiniPOS.RestApi.Shared;
 
 namespace MiniPOS.RestApi.Features.SaleDetail;
 
-public class SaleDetailService
+public class SaleDetailService : ISaleDetailService
 {
 	private AppDbContext _db;
 

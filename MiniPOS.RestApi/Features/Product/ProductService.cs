@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace MiniPOS.RestApi.Features.Product;
 
-public class ProductService
+public class ProductService : IProductService
 {
 	private AppDbContext _db;
 
@@ -27,7 +27,7 @@ public class ProductService
 		responseModel.IsSuccessful = isSuccessful;
 		responseModel.Message = message;
 
-		if(!isSuccessful)
+		if (!isSuccessful)
 		{
 			responseModel.Data = null;
 			return responseModel;
