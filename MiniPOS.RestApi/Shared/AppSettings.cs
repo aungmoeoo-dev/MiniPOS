@@ -7,7 +7,7 @@ public class AppSettings
     private static readonly SqlConnectionStringBuilder _SqlConnectionStringBuillder = new()
     {
         DataSource = ".",
-        InitialCatalog = "MyMiniPOSDB",
+        InitialCatalog = "MiniPOSDB",
         UserID = "sa",
         Password = "Aa145156167!",
         TrustServerCertificate = true

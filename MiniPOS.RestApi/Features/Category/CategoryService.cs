@@ -52,7 +52,7 @@ public class CategoryService : ICategoryService
 		{
 			list = _db.Categories
 			.AsNoTracking()
-			.OrderBy(x => x.Id)
+			.OrderBy(x => x.Code)
 			.Skip((paginationModel.Page - 1) * paginationModel.Limit)
 			.Take(paginationModel.Limit)
 			.ToList();
@@ -65,27 +65,34 @@ public class CategoryService : ICategoryService
 		return list;
 	}
 
-	public CategoryModel GetCategory(string categoryName)
+	public CategoryModel GetCategory(string categoryCode)
 	{
 		var category = _db.Categories
 			.AsNoTracking()
-			.FirstOrDefault(x => x.Name == categoryName);
+			.FirstOrDefault(x => x.Name == categoryCode);
 
-		return category!;
+		return category;
 	}
 
 	public CategoryResponseModel UpdateCategory(CategoryModel requestModel)
 	{
 		CategoryResponseModel responseModel = new();
+
 		var category = _db.Categories
 			.AsNoTracking()
-			.FirstOrDefault(x => x.Name == requestModel.Name);
+			.FirstOrDefault(x => x.Code == requestModel.Code);
 
 		if (category is null)
 		{
 			responseModel.IsSuccessful = false;
+			responseModel.Message = "Category not found.";
 			responseModel.Data = null;
 			return responseModel;
+		}
+
+		if (!string.IsNullOrEmpty(requestModel.Code))
+		{
+			category.Code = requestModel.Code;
 		}
 
 		if (!string.IsNullOrEmpty(requestModel.Name))
@@ -116,19 +123,26 @@ public class CategoryService : ICategoryService
 		return responseModel;
 	}
 
-	public CategoryResponseModel DeleteCategory(string categoryName)
+	public CategoryResponseModel DeleteCategory(string categoryCode)
 	{
 		CategoryResponseModel responseModel = new();
 
 		var category = _db.Categories
 			.AsNoTracking()
-			.FirstOrDefault(x => x.Name == categoryName);
+			.FirstOrDefault(x => x.Code == categoryCode);
+
+		if (category is null)
+		{
+			responseModel.IsSuccessful = false;
+			responseModel.Message = "Category not found.";
+			return responseModel;
+		}
 
 		int productCount = _db.Products
 			.Where(x => x.CategoryId == category.Id)
 			.Count();
 
-		if (productCount < 0)
+		if (productCount > 0)
 		{
 			responseModel.IsSuccessful = false;
 			responseModel.Message = "Category Cannot be Deleted. Related products exist.";

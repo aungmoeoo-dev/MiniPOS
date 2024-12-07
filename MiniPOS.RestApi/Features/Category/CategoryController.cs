@@ -33,20 +33,20 @@ public class CategoryController : ControllerBase
 		return Ok(categories);
 	}
 
-	[HttpGet("{categoryName}")]
-	public IActionResult GetCategory(string categoryName)
+	[HttpGet("{categoryCode}")]
+	public IActionResult GetCategory(string categoryCode)
 	{
-		var category = _categoryService.GetCategory(categoryName);
+		var category = _categoryService.GetCategory(categoryCode);
 
 		if (category is null) return NotFound(category);
 
 		return Ok(category);
 	}
 
-	[HttpPatch("{categoryName}")]
-	public IActionResult UpdateCategory(string categoryName, CategoryModel requestModel)
+	[HttpPatch("{categoryCode}")]
+	public IActionResult UpdateCategory(string categoryCode, CategoryModel requestModel)
 	{
-		requestModel.Name = categoryName;
+		requestModel.Code = categoryCode;
 		var responseModel = _categoryService.UpdateCategory(requestModel);
 
 		if (!responseModel.IsSuccessful) return BadRequest(responseModel);
@@ -54,10 +54,10 @@ public class CategoryController : ControllerBase
 		return Ok(responseModel);
 	}
 
-	[HttpDelete("{categoryName}")]
-	public IActionResult DeleteCategory(string categoryName)
+	[HttpDelete("{categoryCode}")]
+	public IActionResult DeleteCategory(string categoryCode)
 	{
-		var responseModel = _categoryService.DeleteCategory(categoryName);
+		var responseModel = _categoryService.DeleteCategory(categoryCode);
 
 		if (responseModel.IsSuccessful) return BadRequest(responseModel);
 

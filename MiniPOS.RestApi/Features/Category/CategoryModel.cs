@@ -10,6 +10,8 @@ public class CategoryModel
 	[Key]
 	[Column("CategoryId")]
 	public string? Id { get; set; }
+	[Column("CategoryCode")]
+	public string? Code { get; set; }
 	[Column("CategoryName")]
 	public string? Name { get; set; }
 	[Column("CategoryDescription")]
