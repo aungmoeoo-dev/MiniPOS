@@ -13,7 +13,7 @@ public class CategoryService : ICategoryService
 		_db = new AppDbContext();
 	}
 
-	public async Task<CategoryResponseModel> CreateCategory(CategoryModel requestModel)
+	public CategoryResponseModel CreateCategory(CategoryModel requestModel)
 	{
 		CategoryResponseModel responseModel = new();
 
@@ -27,7 +27,7 @@ public class CategoryService : ICategoryService
 
 		requestModel.Id = Guid.NewGuid().ToString();
 		_db.Categories.Add(requestModel);
-		int result = await _db.SaveChangesAsync();
+		int result = _db.SaveChanges();
 
 		bool isSuccessful = result > 0;
 		string message = result > 0 ? "Saving successful." : "Saving failed.";
@@ -44,42 +44,42 @@ public class CategoryService : ICategoryService
 		return responseModel;
 	}
 
-	public async Task<List<CategoryModel>> GetCategories(PaginationModel paginationModel)
+	public List<CategoryModel> GetCategories(PaginationModel paginationModel)
 	{
 		List<CategoryModel> list = new();
 
 		if (paginationModel.Page != 0 && paginationModel.Limit != 0)
 		{
-			list = await _db.Categories
+			list = _db.Categories
 			.AsNoTracking()
 			.OrderBy(x => x.Id)
 			.Skip((paginationModel.Page - 1) * paginationModel.Limit)
 			.Take(paginationModel.Limit)
-			.ToListAsync();
+			.ToList();
 			return list;
 		}
 
-		list = await _db.Categories
+		list = _db.Categories
 				.AsNoTracking()
-				.ToListAsync();
+				.ToList();
 		return list;
 	}
 
-	public async Task<CategoryModel> GetCategory(string categoryName)
+	public CategoryModel GetCategory(string categoryName)
 	{
-		var category = await _db.Categories
+		var category = _db.Categories
 			.AsNoTracking()
-			.FirstOrDefaultAsync(x => x.Name == categoryName);
+			.FirstOrDefault(x => x.Name == categoryName);
 
 		return category!;
 	}
 
-	public async Task<CategoryResponseModel> UpdateCategory(CategoryModel requestModel)
+	public CategoryResponseModel UpdateCategory(CategoryModel requestModel)
 	{
 		CategoryResponseModel responseModel = new();
-		var category = await _db.Categories
+		var category = _db.Categories
 			.AsNoTracking()
-			.FirstOrDefaultAsync(x => x.Name == requestModel.Name);
+			.FirstOrDefault(x => x.Name == requestModel.Name);
 
 		if (category is null)
 		{
@@ -99,7 +99,7 @@ public class CategoryService : ICategoryService
 		}
 
 		_db.Entry(category).State = EntityState.Modified;
-		var result = await _db.SaveChangesAsync();
+		var result = _db.SaveChanges();
 
 		bool isSuccessful = result > 0;
 		string message = result > 0 ? "Updating successful." : "Updating failed.";
@@ -116,17 +116,17 @@ public class CategoryService : ICategoryService
 		return responseModel;
 	}
 
-	public async Task<CategoryResponseModel> DeleteCategory(string categoryName)
+	public CategoryResponseModel DeleteCategory(string categoryName)
 	{
 		CategoryResponseModel responseModel = new();
 
-		var category = await _db.Categories
+		var category = _db.Categories
 			.AsNoTracking()
-			.FirstOrDefaultAsync(x => x.Name == categoryName);
+			.FirstOrDefault(x => x.Name == categoryName);
 
-		int productCount = await _db.Products
+		int productCount = _db.Products
 			.Where(x => x.CategoryId == category.Id)
-			.CountAsync();
+			.Count();
 
 		if (productCount < 0)
 		{
@@ -136,7 +136,7 @@ public class CategoryService : ICategoryService
 		}
 
 		_db.Entry(category).State = EntityState.Deleted;
-		int result = await _db.SaveChangesAsync();
+		int result = _db.SaveChanges();
 
 		string message = result > 0 ? "Deleting successful." : "Deleting failed";
 

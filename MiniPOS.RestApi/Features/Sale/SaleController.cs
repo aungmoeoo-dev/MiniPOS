@@ -17,9 +17,9 @@ public class SaleController : ControllerBase
 	}
 
 	[HttpPost]
-	public async Task<IActionResult> CreateSale([FromBody] List<SaleDetailModel> saleDetails)
+	public IActionResult CreateSale([FromBody] List<SaleDetailModel> saleDetails)
 	{
-		var responseModel = await _saleService.CreateSale(saleDetails);
+		var responseModel = _saleService.CreateSale(saleDetails);
 
 		if (!responseModel.IsSuccessful) return BadRequest(responseModel);
 
@@ -27,17 +27,17 @@ public class SaleController : ControllerBase
 	}
 
 	[HttpGet]
-	public async Task<IActionResult> GetSales([FromQuery] PaginationModel paginationModel)
+	public IActionResult GetSales([FromQuery] PaginationModel paginationModel)
 	{
-		var sales = await _saleService.GetSales(paginationModel);
+		var sales = _saleService.GetSales(paginationModel);
 
 		return Ok(sales);
 	}
 
 	[HttpGet("{id}")]
-	public async Task<IActionResult> GetSale(string id)
+	public IActionResult GetSale(string id)
 	{
-		var sale = await _saleService.GetSale(id);
+		var sale = _saleService.GetSale(id);
 
 		if (sale is null) return NotFound(sale);
 

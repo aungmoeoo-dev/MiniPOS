@@ -3,10 +3,10 @@ namespace MiniPOS.RestApi.Features.Product
 {
 	public interface IProductService
 	{
-		Task<ProductResponseModel> CreateProduct(ProductModel requestModel);
-		Task<ProductResponseModel> DeleteProduct(string id);
-		Task<ProductModel> GetProduct(string id);
-		Task<List<ProductModel>> GetProducts(ProductPaginationModel paginationModel);
-		Task<ProductResponseModel> UpdateProduct(ProductModel requestModel);
+		ProductResponseModel CreateProduct(ProductModel requestModel);
+		ProductResponseModel DeleteProduct(string id);
+		ProductModel GetProduct(string id);
+		List<ProductModel> GetProducts(ProductPaginationModel paginationModel);
+		ProductResponseModel UpdateProduct(ProductModel requestModel);
 	}
 }

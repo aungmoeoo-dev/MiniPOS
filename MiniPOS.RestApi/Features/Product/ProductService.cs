@@ -14,13 +14,13 @@ public class ProductService : IProductService
 		_db = new AppDbContext();
 	}
 
-	public async Task<ProductResponseModel> CreateProduct(ProductModel requestModel)
+	public ProductResponseModel CreateProduct(ProductModel requestModel)
 	{
 		ProductResponseModel responseModel = new();
 
 		requestModel.Id = Guid.NewGuid().ToString();
 		_db.Products.Add(requestModel);
-		int result = await _db.SaveChangesAsync();
+		int result = _db.SaveChanges();
 
 		bool isSuccessful = result > 0;
 		string message = result > 0 ? "Saving successful." : "Saving failed.";
@@ -37,7 +37,7 @@ public class ProductService : IProductService
 		return responseModel;
 	}
 
-	public async Task<List<ProductModel>> GetProducts(ProductPaginationModel paginationModel)
+	public List<ProductModel> GetProducts(ProductPaginationModel paginationModel)
 	{
 		List<ProductModel> products;
 
@@ -45,7 +45,7 @@ public class ProductService : IProductService
 			&& paginationModel.Limit == 0
 			&& paginationModel.CategoryName is null)
 		{
-			products = await _db.Products.ToListAsync();
+			products = _db.Products.ToList();
 
 			return products;
 		}
@@ -54,7 +54,7 @@ public class ProductService : IProductService
 			&& paginationModel.Limit != 0
 			&& paginationModel.CategoryName is null)
 		{
-			products = await GetProductsByPagination(paginationModel);
+			products = GetProductsByPagination(paginationModel);
 
 			return products;
 		}
@@ -63,75 +63,75 @@ public class ProductService : IProductService
 			&& paginationModel.Limit == 0
 			&& paginationModel.CategoryName is not null)
 		{
-			products = await GetProductsByCategory(paginationModel.CategoryName);
+			products = GetProductsByCategory(paginationModel.CategoryName);
 
 			return products;
 		}
 
-		products = await GetProductsByCategoryPagination(paginationModel);
+		products = GetProductsByCategoryPagination(paginationModel);
 		return products;
 	}
 
-	private async Task<List<ProductModel>> GetProductsByCategory(string categoryName)
+	private List<ProductModel> GetProductsByCategory(string categoryName)
 	{
 		List<ProductModel> products = new();
 
-		var category = await _db.Categories
+		var category = _db.Categories
 			.AsNoTracking()
-			.FirstOrDefaultAsync(x => x.Name == categoryName);
+			.FirstOrDefault(x => x.Name == categoryName);
 
 		if (category is null) return products;
 
-		products = await _db.Products
+		products = _db.Products
 			.AsNoTracking()
 			.Where(x => x.CategoryId == category.Id)
-			.ToListAsync();
+			.ToList();
 
 		return products;
 	}
 
-	private async Task<List<ProductModel>> GetProductsByPagination(PaginationModel paginationModel)
+	private List<ProductModel> GetProductsByPagination(PaginationModel paginationModel)
 	{
-		return await _db.Products
+		return _db.Products
 					.AsNoTracking()
 					.OrderBy(x => x.Id)
 					.Skip((paginationModel.Page - 1) * paginationModel.Limit)
 					.Take(paginationModel.Limit)
-					.ToListAsync();
+					.ToList();
 	}
 
-	private async Task<List<ProductModel>> GetProductsByCategoryPagination(ProductPaginationModel paginationModel)
+	private List<ProductModel> GetProductsByCategoryPagination(ProductPaginationModel paginationModel)
 	{
 		List<ProductModel> products = new();
 
-		var category = await _db.Categories
+		var category = _db.Categories
 			.AsNoTracking()
-			.FirstOrDefaultAsync(x => x.Name == paginationModel.CategoryName);
+			.FirstOrDefault(x => x.Name == paginationModel.CategoryName);
 
 		if (category is null) return products;
 
-		products = await _db.Products
+		products = _db.Products
 			.AsNoTracking()
 			.Where(x => x.CategoryId == category.Id)
 			.Skip((paginationModel.Page - 1) * paginationModel.Limit)
 			.Take(paginationModel.Limit)
-			.ToListAsync();
+			.ToList();
 
 		return products;
 	}
 
-	public async Task<ProductModel> GetProduct(string id)
+	public ProductModel GetProduct(string id)
 	{
-		var product = await _db.Products.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+		var product = _db.Products.AsNoTracking().FirstOrDefault(x => x.Id == id);
 
 		return product!;
 	}
 
-	public async Task<ProductResponseModel> UpdateProduct(ProductModel requestModel)
+	public ProductResponseModel UpdateProduct(ProductModel requestModel)
 	{
 		ProductResponseModel responseModel = new();
 
-		var product = await GetProduct(requestModel.Id!);
+		var product = GetProduct(requestModel.Id!);
 
 		if (product is null)
 		{
@@ -152,7 +152,7 @@ public class ProductService : IProductService
 		}
 
 		_db.Entry(product).State = EntityState.Modified;
-		int result = await _db.SaveChangesAsync();
+		int result = _db.SaveChanges();
 
 		bool isSuccessful = result > 0;
 		string message = result > 0 ? "Updating successful." : "Updating failed.";
@@ -169,10 +169,10 @@ public class ProductService : IProductService
 		return responseModel;
 	}
 
-	public async Task<ProductResponseModel> DeleteProduct(string id)
+	public ProductResponseModel DeleteProduct(string id)
 	{
 		ProductResponseModel responseModel = new();
-		var product = await GetProduct(id);
+		var product = GetProduct(id);
 
 		if (product is null)
 		{
@@ -183,7 +183,7 @@ public class ProductService : IProductService
 		}
 
 		_db.Entry(product).State = EntityState.Deleted;
-		int result = await _db.SaveChangesAsync();
+		int result = _db.SaveChanges();
 
 		bool isSuccessful = result > 0;
 		string message = result > 0 ? "Deleting successful." : "Deleting failed.";

@@ -15,17 +15,17 @@ public class SaleDetailController : ControllerBase
 	}
 
 	[HttpGet]
-	public async Task<IActionResult> GetSaleDetails([FromQuery] SaleDetailPaginationModel paginationModel)
+	public IActionResult GetSaleDetails([FromQuery] SaleDetailPaginationModel paginationModel)
 	{
-		var saleDetails = await _saleDetailService.GetSaleDetails(paginationModel);
+		var saleDetails = _saleDetailService.GetSaleDetails(paginationModel);
 
 		return Ok(saleDetails);
 	}
 
 	[HttpGet("{id}")]
-	public async Task<IActionResult> GetSaleDetail(string id)
+	public IActionResult GetSaleDetail(string id)
 	{
-		var saleDetail = await _saleDetailService.GetSaleDetail(id);
+		var saleDetail = _saleDetailService.GetSaleDetail(id);
 
 		if (saleDetail is null) return BadRequest(saleDetail);
 

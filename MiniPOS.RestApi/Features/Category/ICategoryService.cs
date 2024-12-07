@@ -4,10 +4,10 @@ namespace MiniPOS.RestApi.Features.Category
 {
 	public interface ICategoryService
 	{
-		Task<CategoryResponseModel> CreateCategory(CategoryModel requestModel);
-		Task<CategoryResponseModel> DeleteCategory(string categoryName);
-		Task<List<CategoryModel>> GetCategories(PaginationModel paginationModel);
-		Task<CategoryModel> GetCategory(string categoryName);
-		Task<CategoryResponseModel> UpdateCategory(CategoryModel requestModel);
+		CategoryResponseModel CreateCategory(CategoryModel requestModel);
+		CategoryResponseModel DeleteCategory(string categoryName);
+		List<CategoryModel> GetCategories(PaginationModel paginationModel);
+		CategoryModel GetCategory(string categoryName);
+		CategoryResponseModel UpdateCategory(CategoryModel requestModel);
 	}
 }

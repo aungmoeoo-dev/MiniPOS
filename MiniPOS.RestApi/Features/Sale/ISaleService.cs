@@ -5,8 +5,8 @@ namespace MiniPOS.RestApi.Features.Sale
 {
 	public interface ISaleService
 	{
-		Task<SaleResponseModel> CreateSale(List<SaleDetailModel> saleDetails);
-		Task<SaleModel> GetSale(string id);
-		Task<List<SaleModel>> GetSales(PaginationModel paginationModel);
+		SaleResponseModel CreateSale(List<SaleDetailModel> saleDetails);
+		SaleModel GetSale(string id);
+		List<SaleModel> GetSales(PaginationModel paginationModel);
 	}
 }

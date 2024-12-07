@@ -16,9 +16,9 @@ namespace MiniPOS.RestApi.Features.Product
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> CreateProduct([FromBody] ProductModel productModel)
+		public IActionResult CreateProduct([FromBody] ProductModel productModel)
 		{
-			var responseModel = await _productService.CreateProduct(productModel);
+			var responseModel = _productService.CreateProduct(productModel);
 
 			if (!responseModel.IsSuccessful) return BadRequest(responseModel);
 
@@ -26,18 +26,18 @@ namespace MiniPOS.RestApi.Features.Product
 		}
 
 		[HttpGet]
-		public async Task<IActionResult> GetProducts(
+		public IActionResult GetProducts(
 			[FromQuery] ProductPaginationModel paginationModel)
 		{
-			var products = await _productService.GetProducts(paginationModel);
+			var products = _productService.GetProducts(paginationModel);
 
 			return Ok(products);
 		}
 
 		[HttpGet("{id}")]
-		public async Task<IActionResult> GetProduct(string id)
+		public IActionResult GetProduct(string id)
 		{
-			var product = await _productService.GetProduct(id);
+			var product = _productService.GetProduct(id);
 
 			if (product is null) return NotFound(product);
 
@@ -45,11 +45,11 @@ namespace MiniPOS.RestApi.Features.Product
 		}
 
 		[HttpPatch("{id}")]
-		public async Task<IActionResult> UpdateProduct(string id, [FromBody] ProductModel requestModel)
+		public IActionResult UpdateProduct(string id, [FromBody] ProductModel requestModel)
 		{
 			requestModel.Id = id;
 
-			var responseModel = await _productService.UpdateProduct(requestModel);
+			var responseModel = _productService.UpdateProduct(requestModel);
 
 			if (!responseModel.IsSuccessful) return BadRequest(responseModel);
 
@@ -57,9 +57,9 @@ namespace MiniPOS.RestApi.Features.Product
 		}
 
 		[HttpDelete("{id}")]
-		public async Task<IActionResult> DeleteProduct(string id)
+		public IActionResult DeleteProduct(string id)
 		{
-			var responseModel = await _productService.DeleteProduct(id);
+			var responseModel = _productService.DeleteProduct(id);
 
 			if (!responseModel.IsSuccessful) return BadRequest(responseModel);
 

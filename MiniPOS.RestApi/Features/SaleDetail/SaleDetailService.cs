@@ -12,7 +12,7 @@ public class SaleDetailService : ISaleDetailService
 		_db = new AppDbContext();
 	}
 
-	public async Task<List<SaleDetailModel>> GetSaleDetails(SaleDetailPaginationModel paginationModel)
+	public List<SaleDetailModel> GetSaleDetails(SaleDetailPaginationModel paginationModel)
 	{
 		List<SaleDetailModel> list = new();
 
@@ -21,7 +21,7 @@ public class SaleDetailService : ISaleDetailService
 			&& paginationModel.ProductId is null
 			&& paginationModel.SaleId is null)
 		{
-			list = await _db.SaleDetails.ToListAsync();
+			list = _db.SaleDetails.ToList();
 			return list;
 		}
 
@@ -30,9 +30,9 @@ public class SaleDetailService : ISaleDetailService
 			&& paginationModel.ProductId is not null
 			&& paginationModel.SaleId is null)
 		{
-			list = await _db.SaleDetails
+			list = _db.SaleDetails
 				.Where(x => x.ProductId == paginationModel.ProductId)
-				.ToListAsync();
+				.ToList();
 			return list;
 		}
 
@@ -41,10 +41,10 @@ public class SaleDetailService : ISaleDetailService
 			&& paginationModel.ProductId is null
 			&& paginationModel.SaleId is null)
 		{
-			list = await _db.SaleDetails
+			list = _db.SaleDetails
 				.Skip((paginationModel.Page - 1) * paginationModel.Limit)
 				.Take(paginationModel.Limit)
-				.ToListAsync();
+				.ToList();
 			return list;
 		}
 
@@ -53,27 +53,27 @@ public class SaleDetailService : ISaleDetailService
 			&& paginationModel.ProductId is null
 			&& paginationModel.SaleId is not null)
 		{
-			list = await _db.SaleDetails
+			list = _db.SaleDetails
 				.Where(x => x.SaleId == paginationModel.SaleId)
 				.Skip((paginationModel.Page - 1) * paginationModel.Limit)
 				.Take(paginationModel.Limit)
-				.ToListAsync();
+				.ToList();
 
 			return list;
 		}
 
-		list = await _db.SaleDetails
+		list = _db.SaleDetails
 				.Where(x => x.ProductId == paginationModel.ProductId)
 				.Skip((paginationModel.Page - 1) * paginationModel.Limit)
 				.Take(paginationModel.Limit)
-				.ToListAsync();
+				.ToList();
 		return list;
 
 	}
 
-	public async Task<SaleDetailModel> GetSaleDetail(string id)
+	public SaleDetailModel GetSaleDetail(string id)
 	{
-		var saleDetail = await _db.SaleDetails.FirstOrDefaultAsync(x => x.Id == id);
+		var saleDetail = _db.SaleDetails.FirstOrDefault(x => x.Id == id);
 
 		return saleDetail;
 	}

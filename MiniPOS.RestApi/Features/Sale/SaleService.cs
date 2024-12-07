@@ -17,7 +17,7 @@ public class SaleService : ISaleService
 		_db = new AppDbContext();
 	}
 
-	public async Task<SaleResponseModel> CreateSale(List<SaleDetailModel> saleDetails)
+	public SaleResponseModel CreateSale(List<SaleDetailModel> saleDetails)
 	{
 		SaleResponseModel responseModel = new();
 
@@ -25,8 +25,8 @@ public class SaleService : ISaleService
 
 		foreach (var saleDetail in saleDetails)
 		{
-			var product = await _db.Products
-				.FirstOrDefaultAsync(product => product.Id == saleDetail.ProductId);
+			var product =_db.Products
+				.FirstOrDefault(product => product.Id == saleDetail.ProductId);
 
 			if (product is null)
 			{
@@ -47,7 +47,7 @@ public class SaleService : ISaleService
 			saleDetail.TotalAmount = afterDiscountAmount;
 		}
 
-		var transaction = await _db.Database.BeginTransactionAsync();
+		var transaction = _db.Database.BeginTransaction();
 
 		decimal saleTotalAmount = default;
 
@@ -57,7 +57,7 @@ public class SaleService : ISaleService
 			{
 				saleTotalAmount += saleDetail.TotalAmount;
 				_db.SaleDetails.Add(saleDetail);
-				await _db.SaveChangesAsync();
+				_db.SaveChanges();
 			}
 
 			SaleModel sale = new()
@@ -68,7 +68,7 @@ public class SaleService : ISaleService
 				CreatedTime = DateTime.UtcNow,
 			};
 			_db.Sales.Add(sale);
-			await _db.SaveChangesAsync();
+			_db.SaveChanges();
 
 			transaction.Commit();
 
@@ -88,27 +88,27 @@ public class SaleService : ISaleService
 
 	}
 
-	public async Task<List<SaleModel>> GetSales(PaginationModel paginationModel)
+	public List<SaleModel> GetSales(PaginationModel paginationModel)
 	{
 		List<SaleModel> list = new();
 
 		if (paginationModel.Page != 0 && paginationModel.Limit != 0)
 		{
-			list = await _db.Sales
+			list = _db.Sales
 				.Skip((paginationModel.Page - 1) * paginationModel.Limit)
 				.Take(paginationModel.Limit)
-				.ToListAsync();
+				.ToList();
 
 			return list;
 		}
 
-		list = await _db.Sales.ToListAsync();
+		list = _db.Sales.ToList();
 		return list;
 	}
 
-	public async Task<SaleModel> GetSale(string id)
+	public SaleModel GetSale(string id)
 	{
-		var sale = await _db.Sales.FirstOrDefaultAsync(x => x.Id == id);
+		var sale = _db.Sales.FirstOrDefault(x => x.Id == id);
 
 		return sale;
 	}
