@@ -14,12 +14,62 @@ public class ProductService : IProductService
 		_db = new AppDbContext();
 	}
 
-	public ProductResponseModel CreateProduct(ProductModel requestModel)
+	public ProductResponseModel CreateProduct(ProductPublicRequestModel requestModel)
 	{
 		ProductResponseModel responseModel = new();
 
-		requestModel.Id = Guid.NewGuid().ToString();
-		_db.Products.Add(requestModel);
+		if (requestModel.Price is not null && decimal.IsNegative((decimal) requestModel.Price))
+		{
+			responseModel.IsSuccessful = false;
+			responseModel.Message = "Price cannot be negative.";
+			responseModel.Data = null;
+			return responseModel;
+		}
+
+		if (requestModel.Quantity is not null && decimal.IsNegative((decimal)requestModel.Quantity))
+		{
+			responseModel.IsSuccessful = false;
+			responseModel.Message = "Quantity cannot be negative.";
+			responseModel.Data = null;
+			return responseModel;
+		}
+
+		if (string.IsNullOrEmpty(requestModel.Code))
+		{
+			responseModel.IsSuccessful = false;
+			responseModel.Message = "Required info not Provided.";
+			responseModel.Data = null;
+			return responseModel;
+		}
+
+		if (string.IsNullOrEmpty(requestModel.CategoryCode))
+		{
+			responseModel.IsSuccessful = false;
+			responseModel.Message = "Required info not Provided.";
+			responseModel.Data = null;
+			return responseModel;
+		}
+
+		var category = _db.Categories.FirstOrDefault(x => x.Code == requestModel.CategoryCode);
+		if (category is null)
+		{
+			responseModel.IsSuccessful = false;
+			responseModel.Message = "Category not found.";
+			responseModel.Data = null;
+			return responseModel;
+		}
+
+		ProductModel productModel = new()
+		{
+			Id = Guid.NewGuid().ToString(),
+			CategoryId = category.Id,
+			Code = requestModel.Code,
+			Name = requestModel.Name,
+			Price = (decimal)requestModel.Price,
+			Quantity = (decimal)requestModel.Quantity,
+		};
+
+		_db.Products.Add(productModel);
 		int result = _db.SaveChanges();
 
 		bool isSuccessful = result > 0;
@@ -33,7 +83,7 @@ public class ProductService : IProductService
 			return responseModel;
 		}
 
-		responseModel.Data = requestModel;
+		responseModel.Data = productModel;
 		return responseModel;
 	}
 
@@ -43,7 +93,7 @@ public class ProductService : IProductService
 
 		if (paginationModel.Page == 0
 			&& paginationModel.Limit == 0
-			&& paginationModel.CategoryName is null)
+			&& paginationModel.CategoryCode is null)
 		{
 			products = _db.Products.ToList();
 
@@ -52,7 +102,7 @@ public class ProductService : IProductService
 
 		if (paginationModel.Page != 0
 			&& paginationModel.Limit != 0
-			&& paginationModel.CategoryName is null)
+			&& paginationModel.CategoryCode is null)
 		{
 			products = GetProductsByPagination(paginationModel);
 
@@ -61,9 +111,9 @@ public class ProductService : IProductService
 
 		if (paginationModel.Page == 0
 			&& paginationModel.Limit == 0
-			&& paginationModel.CategoryName is not null)
+			&& paginationModel.CategoryCode is not null)
 		{
-			products = GetProductsByCategory(paginationModel.CategoryName);
+			products = GetProductsByCategory(paginationModel.CategoryCode);
 
 			return products;
 		}
@@ -72,13 +122,13 @@ public class ProductService : IProductService
 		return products;
 	}
 
-	private List<ProductModel> GetProductsByCategory(string categoryName)
+	private List<ProductModel> GetProductsByCategory(string categoryCode)
 	{
 		List<ProductModel> products = new();
 
 		var category = _db.Categories
 			.AsNoTracking()
-			.FirstOrDefault(x => x.Name == categoryName);
+			.FirstOrDefault(x => x.Code == categoryCode);
 
 		if (category is null) return products;
 
@@ -106,7 +156,7 @@ public class ProductService : IProductService
 
 		var category = _db.Categories
 			.AsNoTracking()
-			.FirstOrDefault(x => x.Name == paginationModel.CategoryName);
+			.FirstOrDefault(x => x.Code == paginationModel.CategoryCode);
 
 		if (category is null) return products;
 
@@ -120,18 +170,18 @@ public class ProductService : IProductService
 		return products;
 	}
 
-	public ProductModel GetProduct(string id)
+	public ProductModel GetProduct(string productCode)
 	{
-		var product = _db.Products.AsNoTracking().FirstOrDefault(x => x.Id == id);
+		var product = _db.Products.AsNoTracking().FirstOrDefault(x => x.Code == productCode);
 
 		return product!;
 	}
 
-	public ProductResponseModel UpdateProduct(ProductModel requestModel)
+	public ProductResponseModel UpdateProduct(ProductPublicRequestModel requestModel)
 	{
 		ProductResponseModel responseModel = new();
 
-		var product = GetProduct(requestModel.Id!);
+		var product = GetProduct(requestModel.Code!);
 
 		if (product is null)
 		{
@@ -141,14 +191,38 @@ public class ProductService : IProductService
 			return responseModel;
 		}
 
+		if (requestModel.CategoryCode is not null)
+		{
+			var category = _db.Categories.FirstOrDefault(x => x.Code == requestModel.CategoryCode);
+			if (category is null)
+			{
+				responseModel.IsSuccessful = false;
+				responseModel.Message = "Category not found.";
+				responseModel.Data = null;
+				return responseModel;
+			}
+
+			product.CategoryId = category.Id;
+		}
+
+		if (requestModel.Code is not null)
+		{
+			product.Code = requestModel.Code;
+		}
+
 		if (requestModel.Name is not null)
 		{
 			product.Name = requestModel.Name;
 		}
 
-		if (requestModel.CategoryId is not null)
+		if (requestModel.Price is not null && !decimal.IsNegative((decimal) requestModel.Price))
 		{
-			product.CategoryId = requestModel.CategoryId;
+			product.Price = (decimal) requestModel.Price;
+		}
+
+		if (requestModel.Quantity is not null &&  !decimal.IsNegative((decimal) requestModel.Quantity))
+		{
+			product.Quantity = (decimal) requestModel.Quantity;
 		}
 
 		_db.Entry(product).State = EntityState.Modified;
@@ -165,14 +239,14 @@ public class ProductService : IProductService
 			return responseModel;
 		}
 
-		responseModel.Data = requestModel;
+		responseModel.Data = product;
 		return responseModel;
 	}
 
-	public ProductResponseModel DeleteProduct(string id)
+	public ProductResponseModel DeleteProduct(string productCode)
 	{
 		ProductResponseModel responseModel = new();
-		var product = GetProduct(id);
+		var product = GetProduct(productCode);
 
 		if (product is null)
 		{

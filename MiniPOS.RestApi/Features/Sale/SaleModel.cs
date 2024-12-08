@@ -10,8 +10,8 @@ public class SaleModel
 	[Key]
 	[Column("SaleId")]
 	public string? Id { get; set; }
-	[Column("SaleStatus")]
-	public string? SaleStatus { get; set; }
+	[Column("VoucherId")]
+	public string? VoucherId { get; set; }
 	[Column("SaleTotalAmount")]
 	public decimal TotalAmount { get; set; }
 	[Column("SaleCreatedTime")]
@@ -21,5 +21,6 @@ public class SaleModel
 public class SaleResponseModel
 {
 	public bool IsSuccessful { get; set; }
+	public string? Message { get; set; }
 	public SaleModel? Data { get; set; }
 }

@@ -19,10 +19,12 @@ public class SaleDetailModel
 	public decimal Price { get; set; }
 	[Column("SaleDetailQuantity")]
 	public decimal Quantity { get; set; }
-	[Column("SaleDetailDiscountRate")]
-	public decimal DiscountRate { get; set; }
-	[Column("SaleDetailTotalAmount")]
-	public decimal TotalAmount { get; set; }
+}
+
+public class SaleDetailPublicRequestModel
+{
+	public string? ProductCode { get; set; }
+	public decimal? Quantity { get; set; }
 }
 
 public class SaleDetailPaginationModel : PaginationModel

@@ -69,7 +69,7 @@ public class CategoryService : ICategoryService
 	{
 		var category = _db.Categories
 			.AsNoTracking()
-			.FirstOrDefault(x => x.Name == categoryCode);
+			.FirstOrDefault(x => x.Code == categoryCode);
 
 		return category;
 	}

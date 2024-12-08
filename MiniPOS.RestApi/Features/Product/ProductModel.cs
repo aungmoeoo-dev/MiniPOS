@@ -12,14 +12,30 @@ public class ProductModel
 	[Key]
 	[Column("ProductId")]
 	public string? Id { get; set; }
+	[Column("CategoryId")]
+	public string? CategoryId { get; set; }
+	[Column("ProductCode")]
+	public string? Code { get; set; }
 	[Column("ProductName")]
 	public string? Name { get; set; }
-	[Column("ProductCategoryId")]
-	public string? CategoryId { get; set; }
 	[Column("ProductPrice")]
 	public decimal Price { get; set; }
-	[Column("ProductDiscountRate")]
-	public decimal DiscountRate { get; set; }
+	[Column("ProductQuantity")]
+	public decimal Quantity {  get; set; }
+}
+
+public class ProductPublicRequestModel
+{
+	[Column("CategoryCode")]
+	public string? CategoryCode { get; set; }
+	[Column("ProductCode")]
+	public string? Code { get; set; }
+	[Column("ProductName")]
+	public string? Name { get; set; }
+	[Column("ProductPrice")]
+	public decimal? Price { get; set; }
+	[Column("ProductQuantity")]
+	public decimal? Quantity { get; set; }
 }
 
 public class ProductResponseModel
@@ -31,6 +47,6 @@ public class ProductResponseModel
 
 public class ProductPaginationModel : PaginationModel
 {
-	[FromQuery(Name = "Category")]
-	public string? CategoryName { get; set; }
+	[FromQuery(Name = "CategoryCode")]
+	public string? CategoryCode { get; set; }
 }

@@ -17,7 +17,7 @@ public class SaleController : ControllerBase
 	}
 
 	[HttpPost]
-	public IActionResult CreateSale([FromBody] List<SaleDetailModel> saleDetails)
+	public IActionResult CreateSale([FromBody] List<SaleDetailPublicRequestModel> saleDetails)
 	{
 		var responseModel = _saleService.CreateSale(saleDetails);
 
@@ -34,10 +34,10 @@ public class SaleController : ControllerBase
 		return Ok(sales);
 	}
 
-	[HttpGet("{id}")]
-	public IActionResult GetSale(string id)
+	[HttpGet("{voucherId}")]
+	public IActionResult GetSale(string voucherId)
 	{
-		var sale = _saleService.GetSale(id);
+		var sale = _saleService.GetSale(voucherId);
 
 		if (sale is null) return NotFound(sale);
 

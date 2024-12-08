@@ -16,9 +16,9 @@ namespace MiniPOS.RestApi.Features.Product
 		}
 
 		[HttpPost]
-		public IActionResult CreateProduct([FromBody] ProductModel productModel)
+		public IActionResult CreateProduct([FromBody] ProductPublicRequestModel requestModel)
 		{
-			var responseModel = _productService.CreateProduct(productModel);
+			var responseModel = _productService.CreateProduct(requestModel);
 
 			if (!responseModel.IsSuccessful) return BadRequest(responseModel);
 
@@ -34,20 +34,20 @@ namespace MiniPOS.RestApi.Features.Product
 			return Ok(products);
 		}
 
-		[HttpGet("{id}")]
-		public IActionResult GetProduct(string id)
+		[HttpGet("{productCode}")]
+		public IActionResult GetProduct(string productCode)
 		{
-			var product = _productService.GetProduct(id);
+			var product = _productService.GetProduct(productCode);
 
 			if (product is null) return NotFound(product);
 
 			return Ok(product);
 		}
 
-		[HttpPatch("{id}")]
-		public IActionResult UpdateProduct(string id, [FromBody] ProductModel requestModel)
+		[HttpPatch("{productCode}")]
+		public IActionResult UpdateProduct(string productCode, [FromBody] ProductPublicRequestModel requestModel)
 		{
-			requestModel.Id = id;
+			requestModel.Code = productCode;
 
 			var responseModel = _productService.UpdateProduct(requestModel);
 
@@ -56,10 +56,10 @@ namespace MiniPOS.RestApi.Features.Product
 			return Ok(responseModel);
 		}
 
-		[HttpDelete("{id}")]
-		public IActionResult DeleteProduct(string id)
+		[HttpDelete("{productCode}")]
+		public IActionResult DeleteProduct(string productCode)
 		{
-			var responseModel = _productService.DeleteProduct(id);
+			var responseModel = _productService.DeleteProduct(productCode);
 
 			if (!responseModel.IsSuccessful) return BadRequest(responseModel);
 

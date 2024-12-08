@@ -17,75 +17,77 @@ public class SaleService : ISaleService
 		_db = new AppDbContext();
 	}
 
-	public SaleResponseModel CreateSale(List<SaleDetailModel> saleDetails)
+	public SaleResponseModel CreateSale(List<SaleDetailPublicRequestModel> saleDetails)
 	{
 		SaleResponseModel responseModel = new();
+		List<SaleDetailModel> saleDetailList = new ();
 
 		string saleId = Guid.NewGuid().ToString();
 
-		foreach (var saleDetail in saleDetails)
+		for (var i = 0; i < saleDetails.Count; i++)
 		{
-			var product =_db.Products
-				.FirstOrDefault(product => product.Id == saleDetail.ProductId);
+			var saleDetail = saleDetails[i];
+
+			var product = _db.Products
+				.FirstOrDefault(product => product.Code == saleDetail.ProductCode);
 
 			if (product is null)
 			{
 				responseModel.IsSuccessful = false;
+				responseModel.Message = "Product not found.";
 				responseModel.Data = null;
-
 				return responseModel;
 			}
 
-			saleDetail.Id = Guid.NewGuid().ToString();
-			saleDetail.SaleId = saleId;
-			saleDetail.Price = product.Price;
-			saleDetail.DiscountRate = product.DiscountRate;
+			if (saleDetail.Quantity is null)
+			{
+				responseModel.IsSuccessful = false;
+				responseModel.Message = "Required info not provided.";
+				responseModel.Data = null;
+				return responseModel;
+			}
 
-			decimal beforeDiscountAmount = saleDetail.Price * saleDetail.Quantity;
-			decimal afterDiscountAmount =
-				beforeDiscountAmount - (beforeDiscountAmount * saleDetail.DiscountRate / 100);
-			saleDetail.TotalAmount = afterDiscountAmount;
+			product.Quantity -= (decimal) saleDetail.Quantity;
+			_db.Entry(product).State = EntityState.Modified;
+			_db.SaveChanges();
+
+			SaleDetailModel saleDetailModel = new()
+			{
+				Id = Guid.NewGuid().ToString(),
+				ProductId = product.Id,
+				SaleId = saleId,
+				Price = product.Price,
+			};
+			saleDetailList.Add(saleDetailModel);
+			
 		}
-
-		var transaction = _db.Database.BeginTransaction();
 
 		decimal saleTotalAmount = default;
 
-		try
+		foreach (var saleDetail in saleDetailList)
 		{
-			foreach (var saleDetail in saleDetails)
-			{
-				saleTotalAmount += saleDetail.TotalAmount;
-				_db.SaleDetails.Add(saleDetail);
-				_db.SaveChanges();
-			}
-
-			SaleModel sale = new()
-			{
-				Id = saleId,
-				TotalAmount = saleTotalAmount,
-				SaleStatus = "paid",
-				CreatedTime = DateTime.UtcNow,
-			};
-			_db.Sales.Add(sale);
+			saleTotalAmount += saleDetail.Price * saleDetail.Quantity;
+			_db.SaleDetails.Add(saleDetail);
 			_db.SaveChanges();
-
-			transaction.Commit();
-
-			responseModel.IsSuccessful = true;
-			responseModel.Data = sale;
 		}
-		catch (Exception ex)
+
+		var currentSaleIndex = _db.Sales.Count();
+		
+
+		SaleModel sale = new()
 		{
-			responseModel.IsSuccessful = false;
-			responseModel.Data = null;
+			Id = saleId,
+			VoucherId = currentSaleIndex.ToString(),
+			TotalAmount = saleTotalAmount,
+			CreatedTime = DateTime.UtcNow,
+		};
+		_db.Sales.Add(sale);
+		_db.SaveChanges();
 
-			Console.WriteLine(ex.Message);
-			transaction.Rollback();
-		}
+		responseModel.IsSuccessful = true;
+		responseModel.Data = sale;
 
 		return responseModel;
-
 	}
 
 	public List<SaleModel> GetSales(PaginationModel paginationModel)
@@ -106,9 +108,9 @@ public class SaleService : ISaleService
 		return list;
 	}
 
-	public SaleModel GetSale(string id)
+	public SaleModel GetSale(string voucherId)
 	{
-		var sale = _db.Sales.FirstOrDefault(x => x.Id == id);
+		var sale = _db.Sales.FirstOrDefault(x => x.VoucherId == voucherId);
 
 		return sale;
 	}
